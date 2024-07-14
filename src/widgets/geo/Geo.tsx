@@ -4,6 +4,7 @@ import {
 	HoverCardContent,
 	HoverCardTrigger,
 } from '@/components/ui/hover-card'
+import { Progress } from '@/components/ui/progress'
 import { Terminal } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -24,11 +25,9 @@ interface ICondition {
 	text: string
 }
 /* 
-
-у чата гпт спросить почему когда я обращаюсь вот так: data.condition.text - не работает 
-а когда я запихиваю в состояние и обращаюсь так: condition.text - работает
-то есть через одну точку 
-
+  у чата гпт спросить почему когда я обращаюсь вот так: data.condition.text - не работает 
+  а когда я запихиваю в состояние и обращаюсь так: condition.text - работает
+  то есть через одну точку 
 */
 
 export const Geo = () => {
@@ -36,28 +35,31 @@ export const Geo = () => {
 	const [location, setLocation] = useState({} as ILocation)
 	const [current, setCurrent] = useState({} as ICurrent)
 	const [condition, setCondition] = useState({} as ICondition)
+	const [loading, setLoading] = useState(false)
 
 	const geo: Geolocation = navigator.geolocation
 
-	useEffect(() => {
-		const fetchWeather = async (position: any) => {
-			const lat = position.coords.latitude
-			const lon = position.coords.longitude
+	const fetchWeather = async (position: GeolocationPosition) => {
+		setLoading(true)
+		const { latitude, longitude } = position.coords
 
-			try {
-				const res = await fetch(
-					`https://api.weatherapi.com/v1/current.json?key=917944301b2e4b2f8cc71549241207&q=${lat}, ${lon}`
-				)
-				const data = await res.json()
+		try {
+			const res = await fetch(
+				`https://api.weatherapi.com/v1/current.json?key=917944301b2e4b2f8cc71549241207&q=${latitude}, ${longitude}`
+			)
+			const data = await res.json()
 
-				setLocation(data.location)
-				setCurrent(data.current)
-				setCondition(data.current.condition)
-			} catch (error) {
-				console.log(error)
-			}
+			setLocation(data.location)
+			setCurrent(data.current)
+			setCondition(data.current.condition)
+		} catch (error) {
+			console.log(error)
+		} finally {
+			setLoading(false)
 		}
+	}
 
+	useEffect(() => {
 		if (geo) {
 			geo.getCurrentPosition(fetchWeather, (error) => {
 				if (error.PERMISSION_DENIED) {
@@ -81,7 +83,9 @@ export const Geo = () => {
 				</Alert>
 			)}
 
-			{!isError && (
+			{loading && <Progress value={100} className='' />}
+
+			{!isError && !loading && (
 				<div className='flex flex-col items-center justify-center text-center'>
 					<div className='icon'>
 						<img src={condition.icon} alt={condition.text} />
@@ -114,7 +118,6 @@ export const Geo = () => {
 								to this city. However, the information is the same.
 							</HoverCardContent>
 						</HoverCard>
-						<p></p>
 					</div>
 				</div>
 			)}

@@ -1,4 +1,3 @@
-import './App.css'
 import { Geo } from './widgets/geo/Geo'
 
 function App() {
