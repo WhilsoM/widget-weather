@@ -19,19 +19,10 @@ interface ICondition {
 	text: string
 }
 /* 
-апи нашел
-сделать так чтобы браузер спрашивал про мое местонахождение
-если я отменяю то вывелся алерт из юай кита и все 
-
-если же юзер согласился то тогда 
-показывать красивенько информацию о его городе, регионе,
-температуре, скорость ветра
 
 у чата гпт спросить почему когда я обращаюсь вот так: data.condition.text - не работает 
 а когда я запихиваю в состояние и обращаюсь так: condition.text - работает
 то есть через одну точку 
-
-нужно получить lat and long и перевести в город 
 
 */
 
@@ -40,13 +31,17 @@ export const Geo = () => {
 	const [location, setLocation] = useState({} as ILocation)
 	const [current, setCurrent] = useState({} as ICurrent)
 	const [condition, setCondition] = useState({} as ICondition)
+
 	const geo: Geolocation = navigator.geolocation
-<script src="https://api-maps.yandex.ru/1.1/index.xml" type="text/javascript"></script>
+
 	useEffect(() => {
-		const fetchWeather = async () => {
+		const fetchWeather = async (position: any) => {
+			const lat = position.coords.latitude
+			const lon = position.coords.longitude
+
 			try {
 				const res = await fetch(
-					`https://api.weatherapi.com/v1/current.json?key={your api key}&q=moscow`
+					`https://api.weatherapi.com/v1/current.json?key=917944301b2e4b2f8cc71549241207&q=${lat}, ${lon}`
 				)
 				const data = await res.json()
 
@@ -57,20 +52,13 @@ export const Geo = () => {
 				console.log(error)
 			}
 		}
-		fetchWeather()
 
 		if (geo) {
-			geo.getCurrentPosition(
-				(position) => {
-					const lat = position.coords.latitude
-					const lon = position.coords.longitude
-				},
-				(error) => {
-					if (error.PERMISSION_DENIED) {
-						return setIsError(true)
-					}
+			geo.getCurrentPosition(fetchWeather, (error) => {
+				if (error.PERMISSION_DENIED) {
+					return setIsError(true)
 				}
-			)
+			})
 		} else {
 			console.log('Not working...')
 		}
