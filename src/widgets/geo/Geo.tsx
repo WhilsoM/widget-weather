@@ -6,8 +6,6 @@ interface ILocation {
 	country: string
 	region: string
 	name: string
-	lat: string
-	lon: string
 }
 
 interface ICurrent {
@@ -17,7 +15,6 @@ interface ICurrent {
 }
 
 interface ICondition {
-	condition: {}
 	icon: string
 	text: string
 }
@@ -34,6 +31,8 @@ interface ICondition {
 а когда я запихиваю в состояние и обращаюсь так: condition.text - работает
 то есть через одну точку 
 
+нужно получить lat and long и перевести в город 
+
 */
 
 export const Geo = () => {
@@ -42,19 +41,18 @@ export const Geo = () => {
 	const [current, setCurrent] = useState({} as ICurrent)
 	const [condition, setCondition] = useState({} as ICondition)
 	const geo: Geolocation = navigator.geolocation
-
+<script src="https://api-maps.yandex.ru/1.1/index.xml" type="text/javascript"></script>
 	useEffect(() => {
 		const fetchWeather = async () => {
 			try {
 				const res = await fetch(
-					`https://api.weatherapi.com/v1/current.json?key=917944301b2e4b2f8cc71549241207&q=moscow`
+					`https://api.weatherapi.com/v1/current.json?key={your api key}&q=moscow`
 				)
 				const data = await res.json()
 
 				setLocation(data.location)
 				setCurrent(data.current)
 				setCondition(data.current.condition)
-				console.log(data.current)
 			} catch (error) {
 				console.log(error)
 			}
@@ -91,29 +89,32 @@ export const Geo = () => {
 			)}
 
 			{!isError && (
-				<div>
+				<div className='flex flex-col items-center justify-center text-center'>
+					<div className='icon'>
+						<img src={condition.icon} alt={condition.text} />
+					</div>
+
 					<div
-						className='temp-condition flex items-center text-xl
-          gap-4'
+						className='flex
+            items-center
+            text-xl
+            gap-4 
+            mb-4'
 					>
-						<p className=''>
+						<p>
 							{current.temp_c > 0 && '+'}
 							{current.temp_c}C&deg;
 						</p>
-						<p> {condition.text}</p>
-						<img src={condition.icon} alt={condition.text} />
+					</div>
+
+					<div className='mb-4'>
 						<p>Wind speed: {current.wind_mph} mph</p>
 					</div>
 
-					<div className='info-city'>
+					<div className='flex flex-col gap-3'>
 						<p>Country: {location.country} </p>
 						<p>Region: {location.region} </p>
 						<p>City: {location.name} </p>
-					</div>
-
-					<div className='info-latit-long'>
-						<p>Latitude: {location.lat} </p>
-						<p>Longitude: {location.lon}</p>
 					</div>
 				</div>
 			)}
