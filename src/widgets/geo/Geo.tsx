@@ -1,4 +1,9 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+	HoverCard,
+	HoverCardContent,
+	HoverCardTrigger,
+} from '@/components/ui/hover-card'
 import { Terminal } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -102,7 +107,14 @@ export const Geo = () => {
 					<div className='flex flex-col gap-3'>
 						<p>Country: {location.country} </p>
 						<p>Region: {location.region} </p>
-						<p>City: {location.name} </p>
+						<HoverCard>
+							<HoverCardTrigger>City: {location.name} </HoverCardTrigger>
+							<HoverCardContent>
+								if this city is not yours, it means that your city is very close
+								to this city. However, the information is the same.
+							</HoverCardContent>
+						</HoverCard>
+						<p></p>
 					</div>
 				</div>
 			)}
